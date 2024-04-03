@@ -27,6 +27,10 @@
         fetch('https://cwfis.cfs.nrcan.gc.ca/geoserver/public/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:activefires_current&srsname=EPSG:4326&outputFormat=json')
             .then(response => response.json())
             .then(data => {
+
+                 // Filter for fires originating in Alberta
+                 var albertaFires = data.features.filter(feature => feature.properties.prov === 'AB');
+
                 L.geoJSON(data.features, {
                     style: function (feature) {
                         var options = {
