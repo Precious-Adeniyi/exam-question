@@ -27,30 +27,38 @@
         fetch('https://cwfis.cfs.nrcan.gc.ca/geoserver/public/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:activefires_current&srsname=EPSG:4326&outputFormat=json')
             .then(response => response.json())
             .then(data => {
+                console.log(data)
 
-                 // Filter for fires originating in Alberta
-                 var albertaFires = data.features.filter(feature => feature.properties.prov === 'AB');
-
+        
                 L.geoJSON(data.features, {
-                    style: function (feature) {
-                        var options = {
-                            color: '#FF0000',
-                            weight: 2,
-                            fillOpacity: 0.5
-                        }
-                        return options;
-                    },
-                    onEachFeature: function (feature, layer) {
-                        var popupContent = "<p>"
-                            + "Size: " + feature.properties.hectares + "<br/>"
-                            + "</p>";
-                        layer.bindPopup(popupContent);
-                    },
-                    pointToLayer: function (feature, latlng) {
-                        return L.circleMarker(latlng);
-                    }
-                }).addTo(map);
-            });
+    style: function (feature) {
+        var options = {
+            color: '#FF0000',
+            weight: 2,
+            fillOpacity: 0.5
+        }
+        return options;
+    },
+    onEachFeature: function (feature, layer) {
+        var startDate = new Date(feature.properties.startdate);
+        var formattedDate = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        var fireName = feature.properties.firename || "Unknown";
+        var stageOfControl = feature.properties.stage_of_control || "Unknown";
+
+        var popupContent = "<p>"
+            + "Name: " + fireName + "<br/>"
+            + "Stage of Control: " + stageOfControl + "<br/>"
+            + "Start Date: " + (isNaN(startDate.getTime()) ? "Invalid Date" : formattedDate) + "<br/>"
+            + "</p>";
+        layer.bindPopup(popupContent);
+    },
+    pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng);
+    }
+}).addTo(map);
+
+});
     </script>
 </body>
 
