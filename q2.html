@@ -29,36 +29,40 @@
             .then(data => {
                 console.log(data)
 
-        
+   
                 L.geoJSON(data.features, {
-    style: function (feature) {
-        var options = {
-            color: '#FF0000',
-            weight: 2,
-            fillOpacity: 0.5
-        }
-        return options;
-    },
-    onEachFeature: function (feature, layer) {
-        var startDate = new Date(feature.properties.startdate);
-        var formattedDate = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    style: function (feature) {
+                        var hectares = feature.properties.hectares;
+                        var fillColor = '#FF0000'; // This is the default fill color
 
-        var fireName = feature.properties.firename || "Unknown";
-        var stageOfControl = feature.properties.stage_of_control || "Unknown";
+                        // To check if the hectares are less than 1 or null
+                        if (hectares < 1 || hectares === null) {
+                            fillColor = 'transparent'; // To make the inside point transparent
+                        }
 
-        var popupContent = "<p>"
-            + "Name: " + fireName + "<br/>"
-            + "Stage of Control: " + stageOfControl + "<br/>"
-            + "Start Date: " + (isNaN(startDate.getTime()) ? "Invalid Date" : formattedDate) + "<br/>"
-            + "</p>";
-        layer.bindPopup(popupContent);
-    },
-    pointToLayer: function (feature, latlng) {
-        return L.circleMarker(latlng);
-    }
-}).addTo(map);
-
-});
+                        // To check if the hectares are greater than 1000
+                        else if (hectares > 1000) {
+                            fillColor = '#FF0000'; //To make the inside of the circle opaque
+                        }
+                        var options = {
+                            color: '#FF0000',
+                            weight: 2,
+                            fillOpacity: 0.5,
+                            fillColor: fillColor // To set the color based on condition
+                        }
+                        return options;
+                    },
+                    onEachFeature: function (feature, layer) {
+                        var popupContent = "<p>"
+                            + "Size: " + feature.properties.hectares + "<br/>"
+                            + "</p>";
+                        layer.bindPopup(popupContent);
+                    },
+                    pointToLayer: function (feature, latlng) {
+                        return L.circleMarker(latlng);
+                    }
+                }).addTo(map);
+            });
     </script>
 </body>
 
